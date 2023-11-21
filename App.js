@@ -1,15 +1,7 @@
 /*
-Node + Express Example code for CS160 Summer 2022
-Prepared by Shm Garanganao Almeda 
+ParticleAPI Nodejs example code
+Prepared by Shm Garanganao Almeda for DES INV202
 
-Code referenced from: 
-https://www.digitalocean.com/community/tutorials/how-to-create-a-web-server-in-node-js-with-the-http-module"
-https://expressjs.com/en/starter/hello-world.html
-https://codeforgeek.com/render-html-file-expressjs/
-https://stackoverflow.com/questions/32257736/app-use-express-serve-multiple-html
-
-Photo Credits:
-Bunny by Satyabratasm on Unsplash <https://unsplash.com/photos/u_kMWN-BWyU>
 */
 
 //Node modules to *require*
@@ -26,12 +18,21 @@ const port = 8000;
 var publicPath = path.join(__dirname, 'public'); //get the path to use our "public" folder where we stored our html, css, images, etc
 app.use(express.static(publicPath));  //tell express to use that folder
 
+var request = require('request'); //this is a module that allows us to make http requests to other websites!
+
+
+
 
 
 //here's where we specify what to send to users that connect to our web server...
 //if there's no url extension, it will show "index.html"
 router.get("/", function (req, res) {
     res.sendFile(path.join(__dirname, "/"));
+    request('http://www.google.com', function (error, response, body) {
+        if (!error && response.statusCode === 200) {
+            console.log(body) // Print the google web page.
+        }
+    })
 });
 
 //depending on what url extension the user navigates to, send them the respective html file. 

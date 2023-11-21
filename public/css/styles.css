@@ -8,13 +8,13 @@ body { /*default body style (black Verdana)*/
 
 .menu { /* menu style */
   float: left;
-  background-color: #ED2828;
+  background-color: #595959;
   width: 20%;
   text-align: center;
 }
 
 .menu a { /* style of links within menus */
-  background-color: #28ED31;
+  background-color: #9db49d;
   padding: 8px;
   margin-top: 7px;
   display: block;
@@ -36,7 +36,7 @@ body { /*default body style (black Verdana)*/
 
 .main {
   float: left;
-  background-color: #dd2118;
+  background-color: rgb(255, 255, 255);
   width: 60%;
   padding: 0 20px;
   text-align: center;
