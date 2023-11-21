@@ -1,0 +1,188 @@
+<!-- this is the content of your website! 
+all the fancy stuff is either done here in the <script>clientside JavaScript code</script> 
+OR it's in App.js (the serverside JavaScript code!)-->
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="/css/styles.css">
+<!-- bootstrap - not necessary, just mkes our website look slightly nicer-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+</head>
+
+
+<body>
+  <!-- heres the content of our webpage. aka the stuff that actually shows up in the browser. -->
+
+  <div class="container">
+
+  <h1> Welcome to our rad JavaScript example Node.js server! </h1>
+    <div class="row" style="padding-top: 10vh">
+        <button class="btn" id="listDeviceButton">List Devices</button>
+        <button class="btn" id="turnOnLed">Turns on LED</button>
+        <button class="btn" id="turnOffLed">Turns off LED</button>
+        <button class="btn" id="blinkButton">Get Number of Blinks</button>
+    </div>
+
+    <div class="row">
+      <h3>Device List will appear here: </h3>
+      <ul id="deviceList"></ul>
+    </div>
+
+    <div class="row">
+      <div id="ledStatus"></div>
+      <div id="blinkStatus"></div>
+    </div>
+    
+
+    <div class="row">
+      <h2>About</h2>
+      <p>Want to see the code that I flashed to my Photon2 (aka the firmware that works together with this software?)? it's here: <a href="https://go.particle.io/shared_apps/655c4ef39411c101c3db5fdb">https://go.particle.io/shared_apps/655c4ef39411c101c3db5fdb</a> </p>
+      it's just the "Web-Connected LED" app with a couple things added. 
+      There's lots more you can do with the <a href="https://docs.particle.io/reference/cloud-apis/javascript/">Particle JavaScript SDK</a> and/or the <a href="https://docs.particle.io/reference/cloud-apis/api/">Particle REST API</a>, including getting your event stream, publishing events right from the web (events that your devices can Particle.subscribe() and listen for, then react to!) and more!
+      <p>This example code was lovingly prepared by Shm for DESINV202: Technology Design Foundations at UC Berkeley, Fall 2023.</p>
+      
+    </div>
+  </div>
+
+
+
+<!--  Now let's put our JavaScript code below... -->
+
+<!-- This script is for the device list button.-->
+    <script>
+      // anything that's inside script tags is JavaScript code! 
+      // this serves as an example of getting some info from the Particle cloud and having it show up on this webpage.
+      document.getElementById('listDeviceButton').addEventListener('click', function() {
+      const route = '/listdevices'; // this causes the code to jump over to App.js (aka our server) and look for the route '/listdevices'
+
+      fetch(route, {
+        method: 'GET', //this says, go over to App.js and come back when you have a response for me. 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+            console.log("successfully received the list of devices from particle cloud!")
+            const deviceListElement = document.getElementById('deviceList');
+            deviceListElement.innerHTML = ''; // Clear existing list
+
+            data.devices.forEach(device => {
+              const listItem = document.createElement('li');
+              listItem.textContent = `Device Name: ${device.name}, ID: ${device.id}`;
+              deviceListElement.appendChild(listItem);
+            });
+        })
+        .catch(error => {
+          console.error('Error sending request:', error);
+        });
+    });
+    </script>
+  <!-- end of the device list button script. these don't have to be separate scripts. i thought it would just make it slightly more organized for y'all-->
+
+
+  <!-- This script is for the turnLEDon button.-->
+  <script>
+    document.getElementById('turnOnLed').addEventListener('click', function() {
+    const route = '/ledOn'; // Relative path to the API endpoint on the same server
+    const ledStatus = document.getElementById('ledStatus');
+    ledStatus.innerHTML = '<h3 style="color: green">sent request to turn LED on...</h3>'; 
+    fetch(route, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        else {
+          console.log("successfully turned the led on")
+          ledStatus.innerHTML = '<h3 style="color: green">LED is on!</h3>'; 
+        }
+      })
+      .catch(error => {
+        console.error('Error sending request:', error);
+      });
+  });
+  </script>
+<!-- end of the turn LED on  button script. -->
+<!-- This script is for the turn Led Off button. As you can see, this code is super repetitive. 
+  I could have combined this with the previous scripts and made this code 
+  much shorter but.... in the words of mark twain I didn't have time for a short letter. 
+  so I wrote y'all a long one lol-->
+<script>
+  document.getElementById('turnOffLed').addEventListener('click', function() {
+  const route = '/ledOff'; // Relative path to the API endpoint on the same server
+  const ledStatus = document.getElementById('ledStatus');
+  ledStatus.innerHTML = '<h3 style="color: gray">sent request to turn LED off...</h3>'; 
+
+  fetch(route, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      else {
+        console.log("successfully turned the led off")
+        ledStatus.innerHTML = '<h3 style="color: gray">LED is off.</h3>'; 
+      }
+    })
+    .catch(error => {
+      console.error('Error sending request:', error);
+    });
+});
+</script>
+<!-- end of the turn Led off button script. -->
+
+<!-- beginning of getNumBlinks script-->
+<script>
+  // this serves as an example of getting the value of a Particle.variable from our device and showing it on the webpage
+  document.getElementById('blinkButton').addEventListener('click', function() {
+  const route = '/blinks'; // this tells our code to jump over to App.js (aka our server) and look for the route '/blinks'
+
+  fetch(route, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+        console.log("successfully received the number of blinks from particle cloud!")
+        const blinkStatus = document.getElementById('blinkStatus');
+        blinkStatus.innerHTML = `<h3>Number of Blinks: ${data.numberOfBlinks}</h3>`;
+        if (data.numberOfBlinks == 182 ){ 
+          blinkStatus.innerHTML = `<h3>Number of Blinks: omg i love Blink-182</h3>`; //just a little easter egg for y'all
+        }
+    })
+    .catch(error => {
+      console.error('Error sending request:', error);
+    });
+});
+</script>
+<!--end of the blinks script-->
+
+
+<!--end of our cool JavaScripts -->
+
+</body>
+</html>
+
